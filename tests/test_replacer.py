@@ -81,6 +81,20 @@ class TestLoadReplacements:
         pairs = load_replacements(csv_file)
         assert pairs == [("old", "new")]
 
+    def test_parenthetical_stripped_from_find(self, tmp_path):
+        """Pronunciation hints in parentheses are stripped from TỪ CẦN TÌM."""
+        csv_file = str(tmp_path / "data.csv")
+        write_csv(csv_file, [("Clavel (Cla-veo)", "Claveo")])
+        pairs = load_replacements(csv_file)
+        assert pairs == [("Clavel", "Claveo")]
+
+    def test_parenthetical_stripped_leading_space(self, tmp_path):
+        """Whitespace before the opening paren is also removed."""
+        csv_file = str(tmp_path / "data.csv")
+        write_csv(csv_file, [("Word  (wərd)", "từ")])
+        pairs = load_replacements(csv_file)
+        assert pairs == [("Word", "từ")]
+
     def test_empty_file_raises(self, tmp_path):
         csv_file = str(tmp_path / "empty.csv")
         open(csv_file, "w").close()

@@ -3,6 +3,7 @@ Core logic: load replacement pairs from data.csv, apply to text.
 """
 import csv
 import os
+import re
 from typing import Dict, List, Tuple
 
 
@@ -51,7 +52,7 @@ def load_replacements(csv_path: str = CSV_FILE) -> List[Tuple[str, str]]:
 
             pairs: List[Tuple[str, str]] = []
             for i, row in enumerate(reader, start=2):
-                find_val = (row.get(COL_FIND) or "").strip()
+                find_val = re.sub(r"\s*\([^)]*\)", "", (row.get(COL_FIND) or "")).strip()
                 replace_val = (row.get(COL_REPLACE) or "").strip()
                 if find_val:          # skip blank "find" entries silently
                     pairs.append((find_val, replace_val))
