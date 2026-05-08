@@ -18,6 +18,8 @@ A small cross-platform desktop app (Python + Tkinter) with two tools in one wind
   (requires the optional `tkinterdnd2` package).
 - **Safe output** – originals are *never* overwritten; results go to `output/`.
 - **Per-file report** – total replacements and per-key counts shown in the log pane.
+- **Optional parenthesis stripping** – can ignore content inside parentheses in the
+  `TỪ ĐÚNG` column during replacement.
 - **Robust CSV parsing** – quoted values and embedded commas handled correctly.
 - **Clear error messages** – missing/malformed CSV and file-encoding problems
   are reported in the UI.
@@ -98,8 +100,10 @@ The app opens with two tabs:
    - Dragging files from your file manager and dropping them onto the file list.
 3. Processing starts automatically when files are added via drag-and-drop.
    For manually added files, click **▶ Chạy thay thế**.
-4. Results are saved to the `output/` subdirectory next to `app.py`.
-5. The log pane shows per-file replacement counts.
+4. Optionally tick **Bỏ qua nội dung trong dấu ngoặc đơn ở cột 'TỪ ĐÚNG'** if you
+   want values like `Alex (A-lếch)` to be applied as `Alex`.
+5. Results are saved to the `output/` subdirectory next to `app.py`.
+6. The log pane shows per-file replacement counts.
 
 ### Tab 2 – ✏ Prefix Actor
 

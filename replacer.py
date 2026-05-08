@@ -3,6 +3,7 @@ Core logic: load replacement pairs from data.csv, apply to text.
 """
 import csv
 import os
+import re
 from typing import Dict, List, Tuple
 
 
@@ -10,6 +11,7 @@ CSV_FILE = "data.csv"
 COL_FIND = "TỪ CẦN TÌM"
 COL_REPLACE = "TỪ ĐÚNG"
 OUTPUT_DIR = "output"
+PARENTHETICAL_CONTENT_RE = re.compile(r"\s*\([^()]*\)")
 
 
 class CSVError(Exception):
@@ -63,6 +65,7 @@ def load_replacements(csv_path: str = CSV_FILE) -> List[Tuple[str, str]]:
 def apply_replacements(
     text: str,
     pairs: List[Tuple[str, str]],
+    ignore_parenthetical_content: bool = False,
 ) -> Tuple[str, Dict[str, int]]:
     """
     Apply every (find, replace) pair to *text* in order.
@@ -78,6 +81,10 @@ def apply_replacements(
     for find, replace in pairs:
         if not find:
             continue
+        if ignore_parenthetical_content:
+            replace = PARENTHETICAL_CONTENT_RE.sub("", replace).strip()
+        if replace == find:
+            continue
         occurrences = text.count(find)
         if occurrences:
             text = text.replace(find, replace)
@@ -89,6 +96,7 @@ def process_file(
     file_path: str,
     pairs: List[Tuple[str, str]],
     output_dir: str = OUTPUT_DIR,
+    ignore_parenthetical_content: bool = False,
 ) -> Tuple[str, Dict[str, int]]:
     """
     Read *file_path*, apply replacements, write result to *output_dir*.
@@ -111,7 +119,11 @@ def process_file(
     with open(file_path, "r", encoding="utf-8") as fh:
         text = fh.read()
 
-    result, counts = apply_replacements(text, pairs)
+    result, counts = apply_replacements(
+        text,
+        pairs,
+        ignore_parenthetical_content=ignore_parenthetical_content,
+    )
 
     os.makedirs(output_dir, exist_ok=True)
     out_path = os.path.join(output_dir, os.path.basename(file_path))
