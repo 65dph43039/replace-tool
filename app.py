@@ -78,6 +78,15 @@ class App:
         reload_btn = ttk.Button(top, text="↺ Tải lại CSV", command=self._reload_csv)
         reload_btn.pack(side=tk.RIGHT)
 
+        options_row = tk.Frame(parent)
+        options_row.pack(fill=tk.X, **pad)
+        self.ignore_parenthetical_var = tk.BooleanVar(value=False)
+        ttk.Checkbutton(
+            options_row,
+            text="Bỏ qua nội dung trong dấu ngoặc đơn ở cột 'TỪ ĐÚNG'",
+            variable=self.ignore_parenthetical_var,
+        ).pack(side=tk.LEFT)
+
         # ── drop zone / file list ──────────────────────────────────────
         zone_frame = tk.LabelFrame(
             parent,
@@ -340,6 +349,8 @@ class App:
             return
 
         self._log(f"📋 Đã tải {len(pairs)} cặp thay thế từ '{CSV_PATH}'.\n")
+        if self.ignore_parenthetical_var.get():
+            self._log("⚙  Đang bỏ qua nội dung trong dấu ngoặc đơn ở cột 'TỪ ĐÚNG'.\n")
 
         total_files = 0
         total_replacements = 0
@@ -347,7 +358,12 @@ class App:
         for fp in files:
             self._log(f"⚙  Xử lý: {fp}\n")
             try:
-                out_path, counts = process_file(fp, pairs, OUTPUT_DIR)
+                out_path, counts = process_file(
+                    fp,
+                    pairs,
+                    OUTPUT_DIR,
+                    ignore_parenthetical_content=self.ignore_parenthetical_var.get(),
+                )
                 n = _total(counts)
                 total_replacements += n
                 total_files += 1

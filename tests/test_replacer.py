@@ -140,6 +140,33 @@ class TestApplyReplacements:
         assert text == "hello"
         assert counts == {}
 
+    def test_ignore_parenthetical_content_in_replacement(self):
+        text, counts = apply_replacements(
+            "Omodaka",
+            [("Omodaka", "Raumac (Rau-mác)")],
+            ignore_parenthetical_content=True,
+        )
+        assert text == "Raumac"
+        assert counts == {"Omodaka": 1}
+
+    def test_ignore_parenthetical_content_skips_noop_replacement(self):
+        text, counts = apply_replacements(
+            "Alex",
+            [("Alex", "Alex (A-lếch)")],
+            ignore_parenthetical_content=True,
+        )
+        assert text == "Alex"
+        assert counts == {}
+
+    def test_ignore_parenthetical_content_handles_nested_parentheses(self):
+        text, counts = apply_replacements(
+            "Omodaka",
+            [("Omodaka", "Raumac (Rau-mác (đọc gần đúng))")],
+            ignore_parenthetical_content=True,
+        )
+        assert text == "Raumac"
+        assert counts == {"Omodaka": 1}
+
 
 # ---------------------------------------------------------------------------
 # process_file
