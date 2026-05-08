@@ -3,7 +3,6 @@ Core logic: load replacement pairs from data.csv, apply to text.
 """
 import csv
 import os
-import re
 from typing import Dict, List, Tuple
 
 
@@ -11,7 +10,6 @@ CSV_FILE = "data.csv"
 COL_FIND = "TỪ CẦN TÌM"
 COL_REPLACE = "TỪ ĐÚNG"
 OUTPUT_DIR = "output"
-PARENTHETICAL_CONTENT_RE = re.compile(r"\s*\([^()]*\)")
 
 
 class CSVError(Exception):
@@ -62,6 +60,25 @@ def load_replacements(csv_path: str = CSV_FILE) -> List[Tuple[str, str]]:
         raise CSVError(f"Lỗi đọc file '{csv_path}': {exc}") from exc
 
 
+def _strip_parenthetical_content(value: str) -> str:
+    result: List[str] = []
+    depth = 0
+
+    for char in value:
+        if char == "(":
+            depth += 1
+            if result and result[-1] == " ":
+                result.pop()
+            continue
+        if char == ")" and depth:
+            depth -= 1
+            continue
+        if depth == 0:
+            result.append(char)
+
+    return " ".join("".join(result).split())
+
+
 def apply_replacements(
     text: str,
     pairs: List[Tuple[str, str]],
@@ -82,9 +99,9 @@ def apply_replacements(
         if not find:
             continue
         if ignore_parenthetical_content:
-            replace = PARENTHETICAL_CONTENT_RE.sub("", replace).strip()
-        if replace == find:
-            continue
+            replace = _strip_parenthetical_content(replace)
+            if replace == find:
+                continue
         occurrences = text.count(find)
         if occurrences:
             text = text.replace(find, replace)

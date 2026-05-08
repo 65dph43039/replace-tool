@@ -158,6 +158,15 @@ class TestApplyReplacements:
         assert text == "Alex"
         assert counts == {}
 
+    def test_ignore_parenthetical_content_handles_nested_parentheses(self):
+        text, counts = apply_replacements(
+            "Omodaka",
+            [("Omodaka", "Raumac (Rau-mác (đọc gần đúng))")],
+            ignore_parenthetical_content=True,
+        )
+        assert text == "Raumac"
+        assert counts == {"Omodaka": 1}
+
 
 # ---------------------------------------------------------------------------
 # process_file
